@@ -4,6 +4,7 @@ class Project:
         self.a = a
         self.b = b
         self.map = self.generate_map()
+        # fdhfdhg
 
     def generate_map(self):
 
