@@ -1,10 +1,10 @@
 import time
 
+import config
 from client import ClientSocket
-from argparse import ArgumentParser
 
-def play_game(args):
-    client_socket = ClientSocket(args.ip, args.port)
+def play_game():
+    client_socket = ClientSocket(config.ip, config.port).py
     client_socket.send_nme("AIAI")
     # set message
     message = client_socket.get_message()
@@ -31,12 +31,4 @@ def play_game(args):
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser()
-
-    parser.add_argument(dest='ip', default='127.0.0.1', type=str, help='IP adress the connection should be made to.')
-    parser.add_argument(dest='port', default='5555', type=int, help='Chosen port for the connection.')
-
-    args = parser.parse_args()
-    print(args)
-    
-    play_game(args)
+    play_game()

@@ -22,7 +22,7 @@ class Project:
 
         ##TODO: two diffenert species can not in the same cell
         '''
-        location_content = check_cell_content(target_location) # location_content（该点地图的信息）: [cell type , species type(0:human,1:狼人，2:吸血鬼) , race number]
+        location_content = self.check_cell_content(target_location) # location_content（该点地图的信息）: [cell type , species type(0:human,1:狼人，2:吸血鬼) , race number]
         if location_content[1] == target_content[1]: # 同一物种
             # self.map[target_location[0],target_location[1]] += target_content
             self.map[target_location[0],target_location[1]] = target_content
