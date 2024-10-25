@@ -21,7 +21,7 @@ def bytes_to_int(data: bytes) -> int:
 
 
 class ClientSocket:
-    def __init__(self, ip: str , port: int):
+    def __init__(self, ip: str = config.SERVER_IP, port: int = config.SERVER_PORT):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._ip = ip
         self._port = port
