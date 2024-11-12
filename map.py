@@ -12,6 +12,14 @@ class Map:
         self.hme = None # my start position
         self.role = None #play role, vampire:0 ; wolf:1
 
+    def SEND_MOVE(self, client_socket):
+        ## TO DO
+        nb_moves = None
+        moves = None
+        ## END TO DO
+        client_socket.send_mov(nb_moves, moves)
+
+        return
     def UPDATE_GAME_STATE(self,message):
         flag = message[0]
         content = message[1]
@@ -24,6 +32,8 @@ class Map:
             self.check_hme_message(content)
         elif flag == 'map':
             self.check_map_message(content)
+        elif flag == 'upd':
+            self.check_upd_message(content)
         else:
             print("message get flag error!")
         return flag
@@ -68,10 +78,26 @@ class Map:
                         self.role = specie_type-2
                     break
         print("=> Map initialized already")
-        print(map)
+        print(self.map)
         print("--------------------------------------")
         return
 
+    def check_upd_message(self,content):
+        # update all update information about human,vampire, werewolf
+        for cell in content:
+            y = cell[0]
+            x = cell[1]
+            for i in range(2,5):
+                if cell[i] != 0:
+                    specie_type = i - 1 # our type definition is 1:human, 2:vampire, 3:wolf
+                    specie_num = cell[i]
+                    self.map[x][y][0] = specie_type
+                    self.map[x][y][1] = specie_num
+                    break
+        print("=> Upd updated")
+        print(self.map)
+        print("--------------------------------------")
+        return
 
     def generate_empty_map(self, a, b):
         self.a = a
