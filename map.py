@@ -1,41 +1,89 @@
 import numpy as np
 class Map:
-    def __init__(self, a, b,human_info,wolf_info,vermin_info):
+    def __init__(self):
         '''
         info [[location],[content]]
-        content :[cell type , species type(0:human,1:werewolf,2:vermin) , race number]
+        content :[cell type(0:empty, 1:human,2:vermin,3:werewolf) , species number]
         '''
         #Initial map
-        self.a = a  #row
-        self.b = b  #col
-        self.map = self.generate_empty_map()
-        self.update_map(human_info[0],human_info[1])
-        self.update_map(wolf_info[0],wolf_info[1])
-        self.update_map(vermin_info[0],vermin_info[1])
+        self.a = None  #row
+        self.b = None  #col
+        self.map = None # 3 dimensions list
+        self.hme = None # my start position
+        self.role = None #play role, vampire:0 ; wolf:1
+
+    def UPDATE_GAME_STATE(self,message):
+        flag = message[0]
+        content = message[1]
+
+        if flag == 'set':
+            self.check_set_message(content)
+        elif flag == 'hum':
+            self.check_hum_message(content)
+        elif flag == 'hme':
+            self.check_hme_message(content)
+        elif flag == 'map':
+            self.check_map_message(content)
+        else:
+            print("message get flag error!")
+        return flag
+
+    def check_set_message(self,content):
+        self.generate_empty_map(a=content[0],b=content[1])
+        print("=> Map row {a} and col {b} initialized".format(a=self.a, b=self.b))
+        print("--------------------------------------")
+        return
+
+    def check_hum_message(self,content):
+        for h in content:
+            y = h[0]
+            x = h[1]
+            self.map[x][y][0] = 1 # set cell type as human "1"
+        print("=> Map hum position initialized")
+        print(content)
+        print("--------------------------------------")
+        return
+
+    def check_hme_message(self,content):
+        print("=> Map player start position stored, still need to initialize")
+        self.hme = content
+        print(content)
+        print("--------------------------------------")
+        return
+
+    def check_map_message(self,content):
+        # set all update information about human,vampire, werewolf
+        for cell in content:
+            y = cell[0]
+            x = cell[1]
+            for i in range(2,5):
+                if cell[i] != 0:
+                    specie_type = i - 1 # our type definition is 1:human, 2:vampire, 3:wolf
+                    specie_num = cell[i]
+                    self.map[x][y][0] = specie_type
+                    self.map[x][y][1] = specie_num
+
+                    #check our play role
+                    if x==self.hme[1] and y==self.hme[0]:
+                        self.role = specie_type-2
+                    break
+        print("=> Map initialized already")
+        print(map)
+        print("--------------------------------------")
+        return
 
 
-    def generate_empty_map(self):
-
+    def generate_empty_map(self, a, b):
+        self.a = a
+        self.b = b
         map = np.empty((self.a, self.b), dtype=object)  
         
         for i in range(self.a):
             for j in range(self.b):
-                map[i][j] = [None, None, None]  
-        return map 
-    
-    def update_map(self,target_location,target_content):
-        '''
-        target_location:[row,col]
-        target_content:[cell type , species type(0:human,1:werewolf,2:vermin) , race number]
+                map[i][j] = [0, 0, 0]
 
-        ## two different species can not in the same cell
-        '''
-        target_location_content = self.check_cell_content(target_location) # target_location_content: [cell type , species type(0:human,1:狼人，2:吸血鬼) , race number]
-        if target_location_content[1] == (target_content[1] or None): # same species or empty
-            update_cotent = [target_content[0],target_content[1],target_content[2]+target_location_content[2]]
-            self.map[target_location[0],target_location[1]] = update_cotent
-        else:
-            print("fight")
+        self.map =map
+        return map
     
     def check_cell_content(self,check_location):
         '''
@@ -44,6 +92,3 @@ class Map:
         return self.map[check_location[0],check_location[1]]
     
 
-## test
-project = Map(20, 20)
-print(project.map)

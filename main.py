@@ -3,23 +3,29 @@ import time
 from client import ClientSocket
 from argparse import ArgumentParser
 
+from map import Map
+
 
 def play_game(strategy=None, args=None):
     # client_socket = ClientSocket(args.ip, args.port)
     client_socket = ClientSocket()
     client_socket.send_nme("NOM DE VOTRE IA")
+    map = Map()
     # set message
     message = client_socket.get_message()
-    UPDATE_GAME_STATE(message)
+    map.UPDATE_GAME_STATE(message)
+
     # hum message
     message = client_socket.get_message()
-    UPDATE_GAME_STATE(message)
+    map.UPDATE_GAME_STATE(message)
+
     # hme message
     message = client_socket.get_message()
-    UPDATE_GAME_STATE(message)
+    map.UPDATE_GAME_STATE(message)
+
     # map message
     message = client_socket.get_message()
-    UPDATE_GAME_STATE(message)
+    map.UPDATE_GAME_STATE(message)
 
     # start of the game
     while True:
