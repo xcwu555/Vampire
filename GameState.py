@@ -28,13 +28,70 @@ class GameState:
             flag = False
         return flag
 
-    def is_terminal(self):
-        """
-        Check if the game is over
-        :return: bool
-        """
-        ##
-        return True
+    def generate_moves(self):
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, -1), (-1, 1), (1, 1)]
+        next_states = []
+        (current_species, current_num) = self.map[self.position[0]][self.position[1]]
+        attacker_species = 2 if self.character == 'Vampire' else 3
+        for x, y in directions:
+            new_x = self.position[0] + x
+            new_y = self.position[1] + y
+            if self.is_valid_move(new_x, new_y):
+                (target_species, target_num) = self.map[new_x][new_y]
+                new_map = self.map
+                new_map[self.position[0]][self.position[1]] = (0, 0)
+                if target_species == 0:
+                    new_map[new_x][new_y] = (current_species, current_num)
+                else:
+                    E1 = current_num  # attackers' number
+                    E2 = target_num   # defenders' number
+                    if E1 == E2:
+                        P = 0.5
+                    elif E1 < E2:
+                        P = E1/(2*E2)
+                    else:
+                        P = (E1/E2) - 0.5
+
+                    if target_species == 1:   # human
+                        attacker_win_num = (E1 + E2) * P
+                        defender_win_num = 0
+                        attacker_lose_num = 0
+                        defender_lose_num = E2 * (1 - P)
+
+                        # 最终期望攻击者 = attacker_win_num + 0*(1-P) = (E1+E2)*P
+                        final_attacker = attacker_win_num
+                        # 最终期望防守者 = 0*P + E2*(1-P)*(1) = E2*(1-P)
+                        final_defender = defender_lose_num
+
+                        # 比较大小决定归属
+                        if final_attacker > final_defender:
+                            # 归攻击者种族
+                            final_num = final_attacker - final_defender
+                            new_map[new_x][new_y] = (attacker_species, final_num)
+                        else:
+                            # 归人类
+                            final_num = final_defender - final_attacker
+                            new_map[new_x][new_y] = (1, final_num)
+                    else:
+                        attacker_win_num = E1*P
+                        defender_win_num = 0
+                        attacker_lose_num = 0
+                        defender_lose_num = E2*(1-P)
+
+                        final_attacker = attacker_win_num
+                        final_defender = defender_lose_num
+
+                        if final_attacker > final_defender:
+                            new_map[new_x][new_y] = (attacker_species, final_attacker - final_defender)
+                        else:
+                            new_map[new_x][new_y] = (target_species, final_defender - final_attacker)
+
+                new_character = 'Vampire' if self.map.role == 0 else 'Werewolf'
+                next_states.append(GameState(new_map, (new_x, new_y), new_character))
+
+        return next_states
+
+
 
     def evaluate(self):
         """
@@ -80,7 +137,7 @@ def alpha_beta(state, depth, alpha, beta, maximizing_player):
     :param maximizing_player: 是否是最大化玩家
     :return: 当前最佳评估值
     """
-    if depth == 0 or state.is_terminal():
+    if depth == 0:
         return state.evaluate()
 
     if maximizing_player:
