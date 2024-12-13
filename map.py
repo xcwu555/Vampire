@@ -45,7 +45,7 @@ class Map:
         # print(list_vampire)
         # print(list_wolf)
 
-        info_dict = {"h": list_human, "v": list_vampire, "w": list_vampire}
+        info_dict = {"h": list_human, "v": list_vampire, "w": list_wolf}
         print(info_dict)
         return info_dict
 
