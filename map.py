@@ -20,6 +20,35 @@ class Map:
         client_socket.send_mov(nb_moves, moves)
 
         return
+
+    def GET_INFO(self):
+        list_human = []
+        list_vampire = []
+        list_wolf = []
+        for i in range(len(self.map)):  # 遍历每一行的索引
+            for j in range(len(self.map[i])):  # 遍历每一列的索引
+                if self.map[i][j][0] == 0:
+                    pass
+                elif self.map[i][j][0] == 1: # human
+                    number = self.map[i][j][1]
+                    list_human.append([i, j, number])
+                elif self.map[i][j][0] == 2: # vampire
+                    number = self.map[i][j][1]
+                    list_vampire.append([i, j, number])
+                elif self.map[i][j][0] == 3: # wolf
+                    number = self.map[i][j][1]
+                    list_wolf.append([i, j, number])
+                else :
+                    print("GET INFO ERROR")
+
+        # print(list_human)
+        # print(list_vampire)
+        # print(list_wolf)
+
+        info_dict = {"h": list_human, "v": list_vampire, "w": list_vampire}
+        print(info_dict)
+        return info_dict
+
     def UPDATE_GAME_STATE(self,message):
         flag = message[0]
         content = message[1]

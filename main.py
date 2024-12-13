@@ -30,6 +30,7 @@ def play_game():
     while True:
         # send our move
         print("To be Done......")
+        map.GET_INFO()
         map.SEND_MOVE(client_socket)
 
         message  = client_socket.get_message()
