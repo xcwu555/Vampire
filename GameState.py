@@ -45,19 +45,25 @@ class GameState:
         wh = 0.7  # weight human
         we = 0.3  # weight enemy
         eval = 0
-        num_human_cluster = self.map
-        num_enemy_cluster = self.map
+        human_cluster = self.map.GET_INFO().get("h")
+        num_human_cluster = human_cluster.shape()[0]
+        if self.character == "Vampire":
+            enemy_cluster = self.map.GET_INFO().get("v")
+            num_enemy_cluster = enemy_cluster.shape()[0]
+        elif self.character == "Werewolf":
+            enemy_cluster = self.map.GET_INFO().get("w")
+            num_enemy_cluster = enemy_cluster.shape()[0]
         for i in range(num_human_cluster):
-            ratio = self.map[self.position[0]][self.position[1]] / num_human_cluster[i][number]# human number of cluster
+            ratio = self.map[self.position[0]][self.position[1]] / human_cluster[i]# human number of cluster
             ratio -= 1.5
-            distance = np.linalg.norm(self.position, num_human_cluster[i][position])
+            distance = np.linalg.norm(self.position, (human_cluster[i][0], human_cluster[i][1]))
             temp = np.abs(1 / np.abs(ratio) + 0.00001)
             eval += wh * temp / distance
 
         for i in range(num_enemy_cluster):
-            ratio = self.map[self.position[0]][self.position[1]] / num_enemy_cluster[i][number]# human number of cluster
+            ratio = self.map[self.position[0]][self.position[1]] / enemy_cluster[i]# human number of cluster
             ratio -= 1.5
-            distance = np.linalg.norm(self.position, num_enemy_cluster[i][position])
+            distance = np.linalg.norm(self.position, (enemy_cluster[i][0], enemy_cluster[i][1]))
             temp = np.abs(1 / np.abs(ratio) + 0.00001)
             eval += we * temp / distance
 
