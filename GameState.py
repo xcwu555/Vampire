@@ -21,8 +21,12 @@ class GameState:
         :param x, y: (x, y) position
         :return: bool
         """
-        ##
-        return True
+        flag = True
+        if x > self.map.a or x < 0:
+            flag = False
+        if y > self.map.b or y < 0:
+            flag = False
+        return flag
 
     def is_terminal(self):
         """
@@ -38,7 +42,26 @@ class GameState:
         :return: evaluation
         """
         ## !important
-        return 0
+        wh = 0.7  # weight human
+        we = 0.3  # weight enemy
+        eval = 0
+        num_human_cluster = self.map
+        num_enemy_cluster = self.map
+        for i in range(num_human_cluster):
+            ratio = self.map[self.position[0]][self.position[1]] / num_human_cluster[i][number]# human number of cluster
+            ratio -= 1.5
+            distance = np.linalg.norm(self.position, num_human_cluster[i][position])
+            temp = np.abs(1 / np.abs(ratio) + 0.00001)
+            eval += wh * temp / distance
+
+        for i in range(num_enemy_cluster):
+            ratio = self.map[self.position[0]][self.position[1]] / num_enemy_cluster[i][number]# human number of cluster
+            ratio -= 1.5
+            distance = np.linalg.norm(self.position, num_enemy_cluster[i][position])
+            temp = np.abs(1 / np.abs(ratio) + 0.00001)
+            eval += we * temp / distance
+
+        return eval
 
 
 def alpha_beta(state, depth, alpha, beta, maximizing_player):
@@ -94,17 +117,26 @@ def find_best_move(game_state):
             new_character = 'Vampire' if new_map.role == 0 else 'Werewolf'
             new_state = GameState(new_map, (new_x, new_y), new_character)
             # depth的设置
-            eval = alpha_beta(new_state, depth=10, alpha=float('-inf'), beta=float('inf'), maximizing_player=(game_state.character == 'Vampire'))
+            # eval = alpha_beta(new_state, depth=10, alpha=float('-inf'), beta=float('inf'), maximizing_player=(game_state.character == 'Vampire'))
+            eval = alpha_beta(new_state, depth=10, alpha=float('-inf'), beta=float('inf'), maximizing_player=True)
             # 若为MAX玩家
-            if game_state.character == 'Vampire' and eval > best_eval:
-                best_move = (x, y)
+            # if game_state.character == 'Vampire' and eval > best_eval:
+            #     best_move = (x, y)
+            #     best_eval = eval
+            # elif game_state.character == 'Werewolf' and eval < best_eval:
+            #     best_move = (x, y)
+            #     best_eval = eval
+            # else:
+            #     print('No valid move!')
+            #     best_move = (0, 0)
+            if eval > best_eval:
                 best_eval = eval
-            elif game_state.character == 'Werewolf' and eval < best_eval:
                 best_move = (x, y)
-                best_eval = eval
             else:
                 print('No valid move!')
                 best_move = (0, 0)
     if best_move is None:
         print('Wrong map!')
-    return best_move
+    next_x = game_state.position[0] + best_move[0]
+    next_y = game_state.position[1] + best_move[1]
+    return next_x, next_y
