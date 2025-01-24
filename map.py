@@ -12,20 +12,30 @@ class Map:
         self.hme = None # my start position
         self.role = None #play role, vampire:0 ; wolf:1
 
-    def SEND_MOVE(self, client_socket):
+    def SEND_MOVE(self, client_socket, move_x, move_y):
+
+
         ## TO DO
-        nb_moves = None
+        nb_moves = 1
         moves = None
 
-        #test
-        nb_moves = 1
-        dict = self.GET_INFO()
-        v_info = dict.get("v")[0]
-        print("V", v_info)
-        moves = [[v_info[0], v_info[1], 1, v_info[0], v_info[1]]]
-        #test
+        our_position = self.get_our_position()
+        sample_source = our_position[0]
+        sx = sample_source[0]
+        sy = sample_source[1]
+        n = sample_source[2]
+        single_move = [sy, sx, n, sy + move_y, sx + move_x]
 
-
+        moves = [single_move]
+        #test
+        # nb_moves = 1
+        # dict = self.GET_INFO()
+        # v_info = dict.get("v")[0]
+        # print("V", v_info)
+        # moves = [[v_info[1], v_info[0], 1, v_info[1]+1, v_info[0]]]
+        #test
+        # print all elements in moves
+        print("real, moves", moves)
         ## END TO DO
         client_socket.send_mov(nb_moves, moves)
 
@@ -41,7 +51,7 @@ class Map:
                     pass
                 elif self.map[i][j][0] == 1: # human
                     number = self.map[i][j][1]
-                    list_human.append([i, j, number])
+                    list_human.append([i, j, number]) # (x,y,number)
                 elif self.map[i][j][0] == 2: # vampire
                     number = self.map[i][j][1]
                     list_vampire.append([i, j, number])
@@ -56,8 +66,22 @@ class Map:
         # print(list_wolf)
 
         info_dict = {"h": list_human, "v": list_vampire, "w": list_wolf}
-        print(info_dict)
+        # print(info_dict)
         return info_dict
+
+    def get_our_position(self):
+        play_role = self.role #play role, vampire:0 ; wolf:1
+        info_dict = self.GET_INFO()
+        print("our play role", play_role)
+        our_info = None
+        if play_role == 0: # vamprire
+            our_info = info_dict.get("v")
+        elif play_role == 1:
+            our_info = info_dict.get("w")
+        else:
+            print("Our position error")
+
+        return our_info
 
     def UPDATE_GAME_STATE(self,message):
         flag = message[0]
@@ -89,14 +113,14 @@ class Map:
             x = h[1]
             self.map[x][y][0] = 1 # set cell type as human "1"
         print("=> Map hum position initialized")
-        print(content)
+        # print(content)
         print("--------------------------------------")
         return
 
     def check_hme_message(self,content):
         print("=> Map player start position stored, still need to initialize")
         self.hme = content
-        print(content)
+        # print(content)
         print("--------------------------------------")
         return
 
@@ -117,12 +141,13 @@ class Map:
                         self.role = specie_type-2
                     break
         print("=> Map initialized already")
-        print(self.map)
+        # print(self.map)
         print("--------------------------------------")
         return
 
     def check_upd_message(self,content):
         # update all update information about human,vampire, werewolf
+        print("upd content:", content)
         for cell in content:
             y = cell[0]
             x = cell[1]
@@ -133,8 +158,11 @@ class Map:
                     self.map[x][y][0] = specie_type
                     self.map[x][y][1] = specie_num
                     break
+            if cell[2]==0 and cell[3]==0 and cell[4]==0:
+                self.map[x][y][0] = 0
+                self.map[x][y][1] = 0
         print("=> Upd updated")
-        print(self.map)
+        # print(self.map)
         print("--------------------------------------")
         return
 

@@ -176,9 +176,9 @@ def find_best_move(game_state):
     # Vampire MAX玩家  Werewolf MIN玩家
     best_eval = float('-inf')# if game_state.character == 'Vampire' else float('inf')
     for next_state in next_states:
-        print(next_state.map.GET_INFO())
+        # print(next_state.map.GET_INFO())
         eval = alpha_beta(next_state, 5, alpha=float('-inf'), beta=float('inf'), maximizing_player=True)
-        print(f"{next_state.position[0], next_state.position[1]} Eval: {eval}")
+        # print(f"{next_state.position[0], next_state.position[1]} Eval: {eval}")
         if eval > best_eval:
             best_eval = eval
             best_move = (next_state.position[0], next_state.position[1])
@@ -244,12 +244,15 @@ if __name__ == "__main__":
     game_map.UPDATE_GAME_STATE(['map', map_content])
     game_map.GET_INFO()
 
+    print("real init", tuple(game_map.hme))
+    print("type of real init", type(game_map.hme))
     # 创建 GameState 实例
     initial_position = (2, 2)
+    print("type of initial position", type(initial_position))
     game_state = GameState(game_map, initial_position, 'Vampire')
 
     # 测试: 生成移动
-    print("Valid moves from position (2, 2):")
+    # print("Valid moves from position (2, 2):")
     moves = game_state.generate_moves()
     for idx, move in enumerate(moves):
         print(f"Move {idx + 1}: Position {move.position}, Character {move.character}")
