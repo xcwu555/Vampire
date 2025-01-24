@@ -156,4 +156,10 @@ class Map:
         '''
         return self.map[check_location[0],check_location[1]]
     
+    def __getitem__(self, position):
+        return self.map[position[0]][position[1]]
+
+    def __setitem__(self, position, new_value):
+        self.map[position[0]][position[1]] = new_value
+        return
 
