@@ -7,7 +7,7 @@ from map import Map
 def play_game():
     client_socket = ClientSocket()
     # client_socket = ClientSocket(args.ip, args.port)
-    client_socket.send_nme("Our AI")
+    client_socket.send_nme("Our AI 2")
     map = Map()
     # set message
     message = client_socket.get_message()

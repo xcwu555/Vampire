@@ -16,6 +16,16 @@ class Map:
         ## TO DO
         nb_moves = None
         moves = None
+
+        #test
+        nb_moves = 1
+        dict = self.GET_INFO()
+        v_info = dict.get("v")[0]
+        print("V", v_info)
+        moves = [[v_info[0], v_info[1], 1, v_info[0], v_info[1]]]
+        #test
+
+
         ## END TO DO
         client_socket.send_mov(nb_moves, moves)
 
