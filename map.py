@@ -169,25 +169,24 @@ class Map:
     def generate_empty_map(self, a, b):
         self.a = a
         self.b = b
-        map = np.empty((self.a, self.b), dtype=object)  
-        
+        map = np.empty((self.a, self.b), dtype=object)
+
         for i in range(self.a):
             for j in range(self.b):
                 map[i][j] = [0, 0, 0]
 
         self.map =map
         return map
-    
+
     def check_cell_content(self,check_location):
         '''
         check_location:[row,col]
         '''
         return self.map[check_location[0],check_location[1]]
-    
+
     def __getitem__(self, position):
         return self.map[position[0]][position[1]]
 
     def __setitem__(self, position, new_value):
         self.map[position[0]][position[1]] = new_value
         return
-

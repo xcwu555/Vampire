@@ -16,13 +16,13 @@ def send_our_moves(map, client_socket):
         print(f"Move {idx + 1}: Position {move.position}, Character {move.character}")
         move.map.GET_INFO()
     # 测试: 评估函数
-    print("--------------------------------------")
-    evaluation = game_state.evaluate()
-    print("\nEvaluation of the current state:", evaluation)
+    # print("--------------------------------------")
+    # evaluation = game_state.evaluate()
+    # print("\nEvaluation of the current state:", evaluation)
 
     # 测试: α-β剪枝和最佳移动
     print("--------------------------------------")
-    best_x, best_y = find_best_move(game_state)
+    best_x, best_y = find_best_move(game_state, eval_func=1)
     print(f"\nBest move for the current state: ({best_x}, {best_y})")
     # print("PAUSE")
     # import time
