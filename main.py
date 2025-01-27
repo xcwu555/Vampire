@@ -30,7 +30,7 @@ def play_game():
     # ip & port
     client_socket = ClientSocket(config.SERVER_IP, config.SERVER_PORT)
     # client_socket = ClientSocket(args.ip, args.port)
-    client_socket.send_nme("Our AI")
+    client_socket.send_nme("Happy new year")
     map = Map()
     # set message
     message = client_socket.get_message()
