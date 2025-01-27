@@ -3,6 +3,7 @@ from client import ClientSocket
 # import copy
 from map import Map
 from GameState import *
+import config
 
 def send_our_moves(map, client_socket):
     # 创建 GameState 实例
@@ -22,7 +23,7 @@ def send_our_moves(map, client_socket):
 
     # 测试: α-β剪枝和最佳移动
     print("--------------------------------------")
-    # eval_finc=1: Search
+    # eval_finc=2: Alphabeta
     best_x, best_y = find_best_move(game_state, eval_func=1)
     print(f"\nBest move for the current state: ({best_x}, {best_y})")
     # print("PAUSE")
@@ -32,7 +33,8 @@ def send_our_moves(map, client_socket):
 
 
 def play_game():
-    client_socket = ClientSocket()
+    # ip & port
+    client_socket = ClientSocket(config.SERVER_IP, config.SERVER_PORT)
     # client_socket = ClientSocket(args.ip, args.port)
     client_socket.send_nme("Your AI")
     map = Map()

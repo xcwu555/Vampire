@@ -3,6 +3,7 @@ from client import ClientSocket
 # import copy
 from map import Map
 from GameState import *
+import config
 
 def send_our_moves(map, client_socket):
     # 创建 GameState 实例
@@ -10,7 +11,7 @@ def send_our_moves(map, client_socket):
     tuple_postition = tuple([our_position[0], our_position[1]])
     game_state = GameState(map, tuple_postition, 'Vampire')
     # 测试: 生成移动
-    print("Valid moves from position (2, 2):")
+    print("Valid moves:")
     moves = game_state.generate_moves()
     for idx, move in enumerate(moves):
         print(f"Move {idx + 1}: Position {move.position}, Character {move.character}")
@@ -22,6 +23,7 @@ def send_our_moves(map, client_socket):
 
     # 测试: α-β剪枝和最佳移动
     print("--------------------------------------")
+    # eval_func=1 Greedy
     best_x, best_y = find_best_move(game_state, eval_func=1)
     print(f"\nBest move for the current state: ({best_x}, {best_y})")
     # print("PAUSE")
@@ -31,7 +33,8 @@ def send_our_moves(map, client_socket):
 
 
 def play_game():
-    client_socket = ClientSocket()
+    # ip & port
+    client_socket = ClientSocket(config.SERVER_IP, config.SERVER_PORT)
     # client_socket = ClientSocket(args.ip, args.port)
     client_socket.send_nme("Our AI")
     map = Map()

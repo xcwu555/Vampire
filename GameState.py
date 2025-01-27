@@ -94,16 +94,12 @@ class GameState:
 
         return next_states
 
-
-
-    def evaluate(self, previous_num_human_cluster):
+    def evaluate(self, previous_num_human_cluster, wh=10, we=5):
         """
         Evaluate the cost
         :return: evaluation
         """
         ## !important
-        wh = 10  # weight human
-        we = 5  # weight enemy
         human_cluster = self.map.GET_INFO().get("h")
         num_human_cluster = len(human_cluster)
         if self.character == "Vampire":
@@ -146,10 +142,12 @@ class GameState:
                 if distance_human < 2:
                     eval -= np.inf
             eval += we / (distance_enemy + 0.01)
+            if num_enemy_cluster == 0:
+                eval += np.inf
 
         return eval
 
-
+    # maybe useless
     def evaluate_alphabeta(self):
         """
         Evaluate the cost
@@ -188,7 +186,7 @@ class GameState:
         return eval
 
 
-def alpha_beta(state, depth, alpha, beta, maximizing_player):
+def alpha_beta(state, depth, alpha, beta, maximizing_player, previous_num_human_cluster):
     """
     α-β剪枝搜索
     :param state: 当前状态
@@ -207,12 +205,14 @@ def alpha_beta(state, depth, alpha, beta, maximizing_player):
     if len(state.map[state.position[0], state.position[1]]) == 0:
         return -np.inf
     if depth == 0:
-        return state.evaluate_alphabeta()
+        # return state.evaluate_alphabeta()
+        return state.evaluate(previous_num_human_cluster)
 
+    num_human_cluster = len(state.map.GET_INFO().get("h"))
     if maximizing_player:
         max_eval = float('-inf')
         for child in state.generate_moves():
-            eval = alpha_beta(child, depth - 1, alpha, beta, False)
+            eval = alpha_beta(child, depth - 1, alpha, beta, False, num_human_cluster)
             max_eval = max(max_eval, eval)
             alpha = max(alpha, eval)
             if beta <= alpha:
@@ -221,7 +221,7 @@ def alpha_beta(state, depth, alpha, beta, maximizing_player):
     else:
         min_eval = float('inf')
         for child in state.generate_moves():
-            eval = alpha_beta(child, depth - 1, alpha, beta, True)
+            eval = alpha_beta(child, depth - 1, alpha, beta, True, num_human_cluster)
             min_eval = min(min_eval, eval)
             beta = min(beta, eval)
             if beta <= alpha:
@@ -242,11 +242,12 @@ def find_best_move(game_state, eval_func):
     best_eval = float('-inf')# if game_state.character == 'Vampire' else float('inf')
     for next_state in next_states:
         # print(next_state.map.GET_INFO())
+        num_human_cluster = len(game_state.map.GET_INFO().get("h"))
         if eval_func == 1:  #
-            num_human_cluster = len(game_state.map.GET_INFO().get("h"))
             eval = next_state.evaluate(num_human_cluster)
         if eval_func == 2:
-            eval = alpha_beta(next_state, 3, alpha=float('-inf'), beta=float('inf'), maximizing_player=True)
+            # when depth = 0, it's the same as the greedy algorithm
+            eval = alpha_beta(next_state, 3, alpha=float('-inf'), beta=float('inf'), maximizing_player=True, previous_num_human_cluster=num_human_cluster)
         # print(f"{next_state.position[0], next_state.position[1]} Eval: {eval}")
         if eval > best_eval:
             best_eval = eval
@@ -259,6 +260,7 @@ def find_best_move(game_state, eval_func):
     return next_x, next_y
 
 
+# test
 if __name__ == "__main__":
     # 创建 Map 实例
     game_map = Map()
@@ -306,5 +308,5 @@ if __name__ == "__main__":
 
     # 测试: α-β剪枝和最佳移动
     print("--------------------------------------")
-    best_x, best_y = find_best_move(game_state)
+    best_x, best_y = find_best_move(game_state, eval_func=1)
     print(f"\nBest move for the current state: ({best_x}, {best_y})")
