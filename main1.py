@@ -6,24 +6,18 @@ from GameState import *
 import config
 
 def send_our_moves(map, client_socket):
-    # 创建 GameState 实例
     our_position = map.get_our_position()[0]
     tuple_postition = tuple([our_position[0], our_position[1]])
     game_state = GameState(map, tuple_postition, 'Vampire')
-    # 测试: 生成移动
+
     print("Valid moves from position (2, 2):")
     moves = game_state.generate_moves()
     for idx, move in enumerate(moves):
         print(f"Move {idx + 1}: Position {move.position}, Character {move.character}")
         move.map.GET_INFO()
-    # 测试: 评估函数
-    # print("--------------------------------------")
-    # evaluation = game_state.evaluate()
-    # print("\nEvaluation of the current state:", evaluation)
 
-    # 测试: α-β剪枝和最佳移动
     print("--------------------------------------")
-    # eval_finc=2: Alphabeta
+    # eval_func=1: Greedy eval_finc=2: Alphabeta
     best_x, best_y = find_best_move(game_state, eval_func=1)
     print(f"\nBest move for the current state: ({best_x}, {best_y})")
     # print("PAUSE")
@@ -36,7 +30,7 @@ def play_game():
     # ip & port
     client_socket = ClientSocket(config.SERVER_IP, config.SERVER_PORT)
     # client_socket = ClientSocket(args.ip, args.port)
-    client_socket.send_nme("Your AI")
+    client_socket.send_nme("Test AI")
     map = Map()
     # set message
     message = client_socket.get_message()
