@@ -94,7 +94,7 @@ class GameState:
 
         return next_states
 
-    def evaluate(self, previous_num_human_cluster, wh=10, we=5):
+    def evaluate(self, previous_num_human_cluster, wh=13, we=1):
         """
         Evaluate the cost
         :return: evaluation
@@ -114,7 +114,7 @@ class GameState:
             difference_human = self.map[self.position[0], self.position[1]][1] - human_cluster[i][2]
             distance_human = np.linalg.norm(
                 np.array(self.position) - np.array((human_cluster[i][0], human_cluster[i][1])))
-            if difference_human > 0:
+            if difference_human >= 0:
                 if num_human_cluster < previous_num_human_cluster:
                     temp = np.inf
                 else:
@@ -147,54 +147,16 @@ class GameState:
 
         return eval
 
-    # maybe useless
-    def evaluate_alphabeta(self):
-        """
-        Evaluate the cost
-        :return: evaluation
-        """
-        ## !important
-        wh = 10  # weight human
-        we = 5  # weight enemy
-        eval = 0
-        human_cluster = self.map.GET_INFO().get("h")
-        num_human_cluster = len(human_cluster)
-        if self.character == "Vampire":
-            enemy_cluster = self.map.GET_INFO().get("w")
-        else:
-            enemy_cluster = self.map.GET_INFO().get("v")
-        num_enemy_cluster = len(enemy_cluster)
-
-        for i in range(num_human_cluster):
-            ratio = self.map[self.position[0], self.position[1]][1] / human_cluster[i][2]# human number of cluster
-            ratio -= 1.5
-            difference_human = self.map[self.position[0], self.position[1]][1] - human_cluster[i][2]
-            distance_human = np.linalg.norm(
-                np.array(self.position) - np.array((human_cluster[i][0], human_cluster[i][1])))
-            temp = np.abs(1 / np.abs(ratio) + 0.00001) * difference_human
-            eval += np.divide(wh * temp, distance_human, where=(distance_human!=0))  # ?
-
-        for i in range(num_enemy_cluster):
-            ratio = self.map[self.position[0], self.position[1]][1] / enemy_cluster[i][2]# enemy number of cluster
-            ratio -= 1.5
-            difference_enemy = self.map[self.position[0], self.position[1]][1] - enemy_cluster[i][2]
-            distance_enemy = np.linalg.norm(
-                np.array(self.position) - np.array((enemy_cluster[i][0], enemy_cluster[i][1])))
-            temp = np.abs(1 / np.abs(ratio) + 0.00001) * difference_enemy
-            eval += np.divide(we * temp, distance_enemy, where=(distance_enemy!=0))  # ?
-
-        return eval
-
 
 def alpha_beta(state, depth, alpha, beta, maximizing_player, previous_num_human_cluster):
     """
-    α-β剪枝搜索
-    :param state: 当前状态
-    :param depth: 当前深度
-    :param alpha: 当前 α 值
-    :param beta: 当前 β 值
-    :param maximizing_player: 是否是最大化玩家
-    :return: 当前最佳评估值
+    α-β pruning
+    :param state: current state
+    :param depth: current depth
+    :param alpha: α
+    :param beta: β
+    :param maximizing_player: is MAX player or not
+    :return: evaluation value
     """
     enemy_cluster = state.map.GET_INFO().get("v")
     num_enemy = 0
@@ -216,7 +178,7 @@ def alpha_beta(state, depth, alpha, beta, maximizing_player, previous_num_human_
             max_eval = max(max_eval, eval)
             alpha = max(alpha, eval)
             if beta <= alpha:
-                break  # β剪枝
+                break  # β pruning
         return max_eval
     else:
         min_eval = float('inf')
@@ -225,7 +187,7 @@ def alpha_beta(state, depth, alpha, beta, maximizing_player, previous_num_human_
             min_eval = min(min_eval, eval)
             beta = min(beta, eval)
             if beta <= alpha:
-                break  # α剪枝
+                break  # α pruning
         return min_eval
 
 
@@ -238,8 +200,7 @@ def find_best_move(game_state, eval_func):
     next_states = game_state.generate_moves()
     # directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, -1), (-1, 1), (1, 1), (0, 0)]
     best_move = None
-    # Vampire MAX玩家  Werewolf MIN玩家
-    best_eval = float('-inf')# if game_state.character == 'Vampire' else float('inf')
+    best_eval = float('-inf')
     for next_state in next_states:
         # print(next_state.map.GET_INFO())
         num_human_cluster = len(game_state.map.GET_INFO().get("h"))
@@ -262,51 +223,50 @@ def find_best_move(game_state, eval_func):
 
 # test
 if __name__ == "__main__":
-    # 创建 Map 实例
     game_map = Map()
 
-    # 设置地图大小
-    game_map.UPDATE_GAME_STATE(['set', [7, 7]])  # 5x5 地图
+    # map size
+    game_map.UPDATE_GAME_STATE(['set', [5, 5]])  # 5x5 map
 
-    # 初始化人类位置
-    humans = [[6, 6], [0, 0], [3, 3]]  # 定义人类位置
+    # initialize human locations
+    humans = [[6, 6], [0, 0], [3, 3]]  # human locations
     game_map.UPDATE_GAME_STATE(['hum', humans])
 
-    # 设置玩家起始位置
+    # initialize player starting point
     player_start = [4, 4]
     game_map.UPDATE_GAME_STATE(['hme', player_start])
 
-    # 设置地图内容（包括人类、吸血鬼和狼人）
+    # initialize map content
     map_content = [
-        [6, 6, 2, 0, 0],  # 人类在 (1,1), 数量5
+        [6, 6, 2, 0, 0],  # human
         [0, 0, 2, 0, 0],
         [3, 3, 10, 0, 0],
-        [4, 4, 0, 14, 0],  # 吸血鬼在 (2,2), 数量6
-        [2, 2, 0, 0, 14],  # 狼人在 (3,3), 数量7
+        [4, 4, 0, 14, 0],  # vampire
+        [2, 2, 0, 0, 14],  # werewolf
     ]
     game_map.UPDATE_GAME_STATE(['map', map_content])
     game_map.GET_INFO()
 
     print("real init", tuple(game_map.hme))
     print("type of real init", type(game_map.hme))
-    # 创建 GameState 实例
+    # GameState
     initial_position = (4, 4)
     print("type of initial position", type(initial_position))
     game_state = GameState(game_map, initial_position, 'Vampire')
 
-    # 测试: 生成移动
+    # test: generate moves
     # print("Valid moves from position (2, 2):")
     moves = game_state.generate_moves()
     for idx, move in enumerate(moves):
         print(f"Move {idx + 1}: Position {move.position}, Character {move.character}")
         move.map.GET_INFO()
-    # 测试: 评估函数
+    # test: evaluate
     # print("--------------------------------------")
     # evaluation = game_state.evaluate()
     # print(game_state.map.GET_INFO())
     # print("\nEvaluation of the current state:", evaluation)
 
-    # 测试: α-β剪枝和最佳移动
+    # test: α-β pruning and best move
     print("--------------------------------------")
     best_x, best_y = find_best_move(game_state, eval_func=1)
     print(f"\nBest move for the current state: ({best_x}, {best_y})")
