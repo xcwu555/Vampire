@@ -59,19 +59,19 @@ class GameState:
                         attacker_lose_num = 0
                         defender_lose_num = round(E2 * (1 - P))
 
-                        # 最终期望攻击者 = attacker_win_num + 0*(1-P) = (E1+E2)*P
+                        # final_attacker = attacker_win_num + 0*(1-P) = (E1+E2)*P
                         final_attacker = attacker_win_num
-                        # 最终期望防守者 = 0*P + E2*(1-P)*(1) = E2*(1-P)
+                        # final_defender = 0*P + E2*(1-P)*(1) = E2*(1-P)
                         final_defender = defender_lose_num
 
-                        # 比较大小决定归属
+                        # compare the number
                         if final_attacker > final_defender:
-                            # 归攻击者种族
+                            # attackers
                             final_num = final_attacker - final_defender
                             if final_num > 0:
                                 new_map[new_x, new_y] = list([attacker_species, final_num, 0])
                         else:
-                            # 归人类
+                            # human
                             final_num = final_defender - final_attacker
                             if final_num > 0:
                                 new_map[new_x, new_y] = list([1, final_num, 0])
@@ -148,6 +148,7 @@ class GameState:
         return eval
 
 
+# maybe useless
 def alpha_beta(state, depth, alpha, beta, maximizing_player, previous_num_human_cluster):
     """
     α-β pruning
@@ -156,6 +157,7 @@ def alpha_beta(state, depth, alpha, beta, maximizing_player, previous_num_human_
     :param alpha: α
     :param beta: β
     :param maximizing_player: is MAX player or not
+    :param previous_num_human_cluster: judge human cluster changes or not
     :return: evaluation value
     """
     enemy_cluster = state.map.GET_INFO().get("v")
